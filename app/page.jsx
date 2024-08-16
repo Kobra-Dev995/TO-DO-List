@@ -1,32 +1,45 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Card from './components/Card';
 import { useRouter } from 'next/navigation';
 
-export default function Home() {
-  const { refresh } = useRouter();
-  const arryLocalStorage = [];
-
-  for (let i = 0; i < localStorage.length; i++) {
-    arryLocalStorage.push(JSON.parse(localStorage.getItem(`todo${i+1}`)));
-    console.log(arryLocalStorage);
+function setLocalStorage(key, value) {
+  if (typeof window !== 'undefined') {
+    return window.localStorage.setItem(key, value);
   }
+}
 
-  var filtro = arryLocalStorage.filter((todo) => todo);	
+function getLocalStorage(key) {
+  if (typeof window !== 'undefined') {
+    return window.localStorage.getItem(key);
+  }
+}
 
-  const [titleTodo, setTitleTodo] = useState();
-  const [imageTodo, setImageTodo] = useState();
+function removeLocalStorage(key) {
+  if (typeof window !== 'undefined') {
+    return window.localStorage.removeItem(key);
+  }
+}
+
+// function lengthLocalStorage() {
+//   return window.localStorage.length;
+// }
+
+export default function Home() {
   const [nameImagemUpload, setNameImagemUpload] = useState('Name');
-
   const [textTodo, setTextTodo] = useState('');
   const [urlBase64, setUrlBase64] = useState('');
+  const [array, setArray] = useState([]);
+
+  const filtro = array.filter((todo) => {
+    return todo;
+  });
 
   function handleFileUpload(event) {
     const reader = new FileReader();
     reader.onload = () => {
       setNameImagemUpload(event.target.files[0].name);
-
       setUrlBase64((prevState) => (prevState = reader.result));
     };
     reader.readAsDataURL(event.target.files[0]);
@@ -36,33 +49,68 @@ export default function Home() {
     setTextTodo((prevState) => (prevState = event.target.value));
   }
 
-  function handleCreateTodo(event) {
-    const idTodo = localStorage.length;
+  function handleCreateTodo() {
+    if (!textTodo && !urlBase64) {
+      return;
+    }
 
-    document.querySelector('#file').value = '';
-    document.querySelector('#textTodo').value = '';
+    setArray((prevState) => [
+      ...prevState,
+      {
+        id: array.length + 1,
+        Title: textTodo,
+        Image: urlBase64,
+      },
+    ]);
 
-    console.log(idTodo);
-
-    localStorage.setItem(
-      `todo${idTodo + 1}`,
+    setLocalStorage(
+      `todo${array.length + 1}`,
       JSON.stringify({
-        id: idTodo + 1,
-        title: textTodo,
-        image: urlBase64 || '',
+        id: array.length + 1,
+        Title: textTodo,
+        Image: urlBase64,
       })
     );
 
-    refresh();
+    document.querySelector('#textTodo').value = '';
+    document.querySelector('#file').value = '';
+    setNameImagemUpload('Name');
+    setUrlBase64('');
+    setTextTodo('');
   }
 
-  function handleDeleteTodo(id) {
+  function handleDeleteTodo(event) {
+    const todoDeleted = [];
     const idTodo =
-      id.target.parentNode.parentNode.childNodes[0].innerHTML.split(' ');
-    console.log(idTodo[idTodo.length - 1]);
-    localStorage.removeItem(`todo${idTodo[idTodo.length - 1]}`);
-    refresh();
+      event.target.parentNode.parentNode.childNodes[0].innerHTML.split(' ');
+    const idDelete = idTodo[idTodo.length - 1];
+
+    for (const todo of filtro) {
+      if (todo.id == idDelete) {
+        todoDeleted.push(array.slice(idDelete - 1, idDelete));
+      }
+    }
+
+    removeLocalStorage(`todo${todoDeleted[0].id}`);
   }
+
+  useEffect(() => {
+    const arrayLocalStorage = [];
+
+    if (!window.localStorage) {
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const data = getLocalStorage(`todo${i}`);
+        if (!data) {
+          break;
+        }
+        arrayLocalStorage.push(data);
+      }
+    }
+    
+    setArray(arrayLocalStorage);
+  }, []);
+
+  console.log(array);
 
   return (
     <>
@@ -109,14 +157,15 @@ export default function Home() {
         </section>
 
         <section>
-          <Suspense fallback={<p>Carregando...</p>}>
-            {filtro.reverse().map((todo) => {
+          <Suspense fallback={<p>Loading...</p>}>
+            {new Promise((resolve) => setTimeout(resolve, 2000))}
+            {filtro.map((todo) => {
               return (
                 <Card
-                  key={todo?.id}
-                  Title={`TO DO ${todo?.id}`}
-                  Description={todo?.title}
-                  Image={todo?.image}
+                  key={todo.id}
+                  Title={`TO DO ${todo.id}`}
+                  Description={todo.Title}
+                  Image={todo.Image}
                   DeleteTodo={handleDeleteTodo}
                 />
               );
