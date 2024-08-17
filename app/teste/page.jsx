@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Card from './components/Card';
+import CardTeste from './components/cardTeste';
 
 export default function Teste() {
   const [todo, setTodo] = useState([]);
@@ -108,7 +108,7 @@ export default function Teste() {
         <div>
           {todo.map((todo) => {
             return (
-              <Card
+              <CardTeste
                 key={todo.id}
                 Id={todo.id}
                 Description={todo.text}
