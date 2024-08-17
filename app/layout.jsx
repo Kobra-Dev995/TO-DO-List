@@ -4,7 +4,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'TO DO',
+  title: 'TO DO - Next.js',
   description: 'TO DO List with Next.js - LocalStorage',
 };
 

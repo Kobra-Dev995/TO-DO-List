@@ -118,6 +118,8 @@ export default function Home() {
       temp.push(keyLocalStorage(i));
     }
 
+    // essa merda vai quebrar o projeto se eu tiver um localStorage diferente de todo${number}
+
     // if (temp) {
     //   return;  
     // }
@@ -136,7 +138,7 @@ export default function Home() {
   return (
     <>
       <div className='w-full min-h-screen flex flex-col items-center justify-center gap-4 p-4'>
-        <h1 className='text-3xl font-bold'>Teste</h1>
+        <h1 className='text-3xl font-bold'>To Do List - LocalStorage</h1>
 
         <div className='flex flex-col gap-4 mb-8'>
           <input
