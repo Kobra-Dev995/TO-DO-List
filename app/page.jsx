@@ -118,9 +118,9 @@ export default function Home() {
       temp.push(keyLocalStorage(i));
     }
 
-    if (temp) {
-      return;  
-    }
+    // if (temp) {
+    //   return;  
+    // }
 
     for (const todo of temp) {
       setTodo((prevState) => [...prevState, JSON.parse(getLocalStorage(todo))]);
